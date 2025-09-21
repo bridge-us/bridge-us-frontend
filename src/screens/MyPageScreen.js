@@ -1,5 +1,5 @@
 // src/screens/MyPageScreen.js
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -7,6 +7,7 @@ import {
   Pressable,
   FlatList,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -17,7 +18,7 @@ const GRAY = "#6B7280";
 // 더미 데이터
 const MOCK_PROGRESS = [
   {
-    id: 1,
+    id: "p1",
     name: "김현진",
     headline: "28년 금융권 경력 노하우",
     career: "국민은행 (28년)",
@@ -25,22 +26,50 @@ const MOCK_PROGRESS = [
     mode: "온라인",
   },
 ];
-
 const MOCK_WAITING = [];
 
+// 신규: 신청 관리(멘티 신청서)
+const MOCK_REQUESTS = [
+  {
+    id: "r1",
+    mentee: "박지수",
+    topic: "면접 대비 1:1 코칭 요청",
+    memo: "이력서/자소서 체크와 예상 질문 준비 부탁드려요.",
+    wantMethod: "온라인",
+    requestedAt: "어제",
+  },
+  {
+    id: "r2",
+    mentee: "강윤아",
+    topic: "iOS 포트폴리오 점검",
+    memo: "아키텍처/코드 리뷰 받고 싶습니다.",
+    wantMethod: "오프라인",
+    requestedAt: "3일 전",
+  },
+];
+
 export default function MyPageScreen({ navigation }) {
-  const [tab, setTab] = useState("progress"); // progress | waiting
+  // progress | waiting | inbox(신청 관리)
+  const [tab, setTab] = useState("progress");
+  const [progress, setProgress] = useState(MOCK_PROGRESS);
+  const [waiting] = useState(MOCK_WAITING);
+  const [requests, setRequests] = useState(MOCK_REQUESTS);
 
-  const data = tab === "progress" ? MOCK_PROGRESS : MOCK_WAITING;
+  const data = useMemo(() => {
+    if (tab === "progress") return progress;
+    if (tab === "waiting") return waiting;
+    return requests;
+  }, [tab, progress, waiting, requests]);
 
-  const renderItem = ({ item }) => (
+  /** ---------- 진행/대기 카드 ---------- */
+  const renderCommonCard = ({ item }) => (
     <View style={s.card}>
       <Text style={s.smallTag}>{item.category}</Text>
       <Text style={s.name}>{item.name}</Text>
       <Text style={s.headline}>{item.headline}</Text>
       <View style={s.row}>
         <Text style={s.key}>경력</Text>
-        <Text style={s.val}>{item.career}</Text>
+        <Text style={s.val}>{item.career || "-"}</Text>
       </View>
       <View style={s.row}>
         <Text style={s.key}>진행방식</Text>
@@ -48,6 +77,70 @@ export default function MyPageScreen({ navigation }) {
       </View>
     </View>
   );
+
+  /** ---------- 신청 관리 카드 ---------- */
+  const onApprove = (req) => {
+    // 승인: 신청함에서 제거 + 진행중에 추가
+    setRequests((prev) => prev.filter((r) => r.id !== req.id));
+    setProgress((prev) => [
+      {
+        id: `p-${Date.now()}`,
+        name: req.mentee,
+        headline: req.topic,
+        career: "",
+        category: "멘토링",
+        mode: req.wantMethod,
+      },
+      ...prev,
+    ]);
+    Alert.alert("승인 완료", `${req.mentee} 님 신청을 승인했어요.`);
+  };
+
+  const onReject = (req) => {
+    setRequests((prev) => prev.filter((r) => r.id !== req.id));
+    Alert.alert("거절 완료", `${req.mentee} 님 신청을 거절했어요.`);
+  };
+
+  const renderRequestCard = ({ item }) => (
+    <View style={s.card}>
+      <View style={s.reqHeader}>
+        <Text style={s.reqBadge}>신청</Text>
+        <Text style={s.reqTime}>{item.requestedAt}</Text>
+      </View>
+
+      <Text style={s.reqTitle}>{item.topic}</Text>
+
+      <View style={{ marginTop: 8 }}>
+        <View style={s.row}>
+          <Text style={s.key}>신청자</Text>
+          <Text style={s.val}>{item.mentee}</Text>
+        </View>
+        <View style={s.row}>
+          <Text style={s.key}>방식</Text>
+          <Text style={s.val}>{item.wantMethod}</Text>
+        </View>
+      </View>
+
+      {!!item.memo && (
+        <View style={{ marginTop: 10 }}>
+          <Text style={s.key}>메모</Text>
+          <Text style={[s.val, { marginTop: 4 }]}>{item.memo}</Text>
+        </View>
+      )}
+
+      <View style={s.reqActions}>
+        <Pressable style={[s.btn, s.btnOutline]} onPress={() => onReject(item)}>
+          <Text style={[s.btnText, s.btnTextOutline]}>거절</Text>
+        </Pressable>
+        <Pressable style={[s.btn, s.btnFill]} onPress={() => onApprove(item)}>
+          <Text style={[s.btnText, s.btnTextFill]}>승인</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+
+  const renderItem = (props) =>
+    tab === "inbox" ? renderRequestCard(props) : renderCommonCard(props);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -77,6 +170,14 @@ export default function MyPageScreen({ navigation }) {
             대기 중인 멘토링
           </Text>
         </Pressable>
+        <Pressable
+          style={[s.tabBtn, tab === "inbox" && s.tabActive]}
+          onPress={() => setTab("inbox")}
+        >
+          <Text style={[s.tabText, tab === "inbox" && s.tabTextActive]}>
+            신청 관리
+          </Text>
+        </Pressable>
       </View>
 
       {/* 리스트 */}
@@ -92,7 +193,7 @@ export default function MyPageScreen({ navigation }) {
         }
       />
 
-      {/* 하단 탭바 */}
+      {/* 하단 탭바 (Home, Chat, Board, My) */}
       <View style={s.tabbar}>
         {/* 홈 */}
         <Pressable hitSlop={10} onPress={() => navigation.navigate("Main")}>
@@ -164,6 +265,49 @@ const s = StyleSheet.create({
   row: { marginTop: 6, flexDirection: "row", gap: 10 },
   key: { width: 56, color: GRAY },
   val: { flex: 1, fontWeight: "600" },
+
+  // 신청 관리 전용
+  reqHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  reqBadge: {
+    backgroundColor: "#EEF2FF",
+    color: BLUE,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    fontWeight: "700",
+  },
+  reqTime: { color: GRAY, fontSize: 13 },
+  reqTitle: { marginTop: 10, fontSize: 16, fontWeight: "800" },
+
+  reqActions: {
+    marginTop: 14,
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 10,
+  },
+  btn: {
+    height: 40,
+    minWidth: 84,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  btnOutline: {
+    borderWidth: 1,
+    borderColor: BORDER,
+    backgroundColor: "#fff",
+  },
+  btnFill: {
+    backgroundColor: BLUE,
+  },
+  btnText: { fontWeight: "800" },
+  btnTextOutline: { color: "#111" },
+  btnTextFill: { color: "#fff" },
 
   tabbar: {
     position: "absolute",

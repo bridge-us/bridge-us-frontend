@@ -14,8 +14,14 @@ import RegisterStep3Details from "./src/screens/RegisterStep3Details";
 import RegisterStep4Confirm from "./src/screens/RegisterStep4Confirm";
 
 // 기타
-import MyPageScreen from "./src/screens/MyPageScreen";
 import MentorDetailScreen from "./src/screens/MentorDetailScreen";
+import ChatScreen from "./src/screens/ChatScreen";
+import ApplyCompleteScreen from "./src/screens/ApplyCompleteScreen";
+import ChatRoomScreen from "./src/screens/ChatRoomScreen";
+
+// 추가된 화면
+import MentorReviewsScreen from "./src/screens/MentorReviewsScreen";
+import OpenChatRoomScreen from "./src/screens/OpenChatRoomScreen";
 
 // 게시판
 import BoardScreen from "./src/screens/BoardScreen";
@@ -46,8 +52,12 @@ export default function App() {
         <Stack.Screen name="RegisterStep4" component={RegisterStep4Confirm} />
 
         {/* 기타 */}
-        <Stack.Screen name="MyPage" component={MyPageScreen} />
         <Stack.Screen name="MentorDetail" component={MentorDetailScreen} />
+        <Stack.Screen name="Chat" component={ChatScreen} />
+        <Stack.Screen name="ChatRoom" component={ChatRoomScreen} />
+        <Stack.Screen name="ApplyComplete" component={ApplyCompleteScreen} />
+        <Stack.Screen name="MentorReviews" component={MentorReviewsScreen} />
+        <Stack.Screen name="OpenChatRoom" component={OpenChatRoomScreen} />
 
         {/* 게시판 */}
         <Stack.Screen name="Board" component={BoardScreen} />

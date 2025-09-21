@@ -9,6 +9,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import BottomTab from "../components/BottomTab";
 
 const BLUE = "#2563EB";
 const BORDER = "#E5E7EB";
@@ -47,7 +48,6 @@ const MOCK = [
 export default function MainScreen({ navigation, route }) {
   const [list, setList] = useState(MOCK);
 
-  // 등록 완료 후 넘어온 새 카드 반영
   useEffect(() => {
     const incoming = route?.params?.newMentor;
     if (incoming) {
@@ -92,9 +92,14 @@ export default function MainScreen({ navigation, route }) {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* 상단 바 */}
       <View style={s.topBar}>
-        <View style={{ width: 24 }} />
+        <View style={s.brand}>
+          <Text style={s.brandBridge}>Bridge</Text>
+          <Text style={s.brandDot}> · </Text>
+          <Text style={s.brandUs}>Us</Text>
+        </View>
+
         <Pressable hitSlop={10} onPress={() => alert("검색 준비중")}>
-          <Ionicons name="search" size={22} color="#111" />
+          <Ionicons name="search" size={28} color="#111" />
         </Pressable>
       </View>
 
@@ -111,54 +116,60 @@ export default function MainScreen({ navigation, route }) {
         style={s.fab}
         onPress={() => navigation.navigate("RegisterStep1")}
       >
-        <Ionicons name="create-outline" size={18} color="#fff" />
+        <Ionicons name="create-outline" size={20} color="#fff" />
         <Text style={s.fabText}>멘토링 등록하기</Text>
       </Pressable>
 
-      {/* 하단 탭: 1 홈, 2 채팅방, 3 게시판, 4 마이페이지 */}
-      <View style={s.tabbar}>
-        {/* 1. 홈 */}
-        <Pressable hitSlop={10} onPress={() => navigation.navigate("Main")}>
-          <Ionicons name="home-outline" size={22} color="#111" />
-        </Pressable>
-
-        {/* 2. 채팅방 */}
-        <Pressable hitSlop={10} onPress={() => alert("채팅 기능 준비중")}>
-          <Ionicons
-            name="chatbubble-ellipses-outline"
-            size={22}
-            color="#9CA3AF"
-          />
-        </Pressable>
-
-        {/* 3. 게시판 */}
-        <Pressable hitSlop={10} onPress={() => navigation.navigate("Board")}>
-          <Ionicons name="newspaper-outline" size={22} color="#9CA3AF" />
-        </Pressable>
-
-        {/* 4. 마이페이지 */}
-        <Pressable hitSlop={10} onPress={() => navigation.navigate("MyPage")}>
-          <Ionicons name="person-circle-outline" size={24} color="#9CA3AF" />
-        </Pressable>
-      </View>
+      {/* 공용 하단 탭 */}
+      <BottomTab navigation={navigation} active="home" />
     </SafeAreaView>
   );
 }
 
 const s = StyleSheet.create({
   topBar: {
-    height: 50,
-    paddingHorizontal: 16,
+    height: 64,
+    paddingHorizontal: 20,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
+
+  /* 브랜드 로고 (Bridge · Us) */
+  brand: {
+    flexDirection: "row",
+    alignItems: "baseline",
+  },
+  brandBridge: {
+    fontSize: 30,
+    fontWeight: "900",
+    color: "#111827",
+    letterSpacing: -0.3,
+  },
+  brandDot: {
+    fontSize: 30,
+    fontWeight: "900",
+    color: BLUE,
+    marginHorizontal: 2,
+  },
+  brandUs: {
+    fontSize: 30,
+    fontWeight: "900",
+    color: BLUE,
+    letterSpacing: -0.3,
+  },
+
   card: {
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: BORDER,
-    borderRadius: 18,
-    padding: 16,
+    borderRadius: 20,
+    padding: 18,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
   },
   cardTop: {
     flexDirection: "row",
@@ -167,49 +178,36 @@ const s = StyleSheet.create({
   },
   smallTag: { color: "#9CA3AF", fontSize: 13, marginBottom: 8 },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: BLUE,
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { color: "#fff", fontWeight: "800" },
-  name: { marginTop: 8, fontSize: 18, fontWeight: "800" },
-  headline: { marginTop: 6, fontSize: 16, fontWeight: "700" },
+  avatarText: { color: "#fff", fontWeight: "800", fontSize: 16 },
+  name: { marginTop: 8, fontSize: 19, fontWeight: "800", color: "#111" },
+  headline: { marginTop: 6, fontSize: 15, fontWeight: "600", color: "#333" },
   row: { marginTop: 8, flexDirection: "row", gap: 10 },
   key: { width: 56, color: GRAY },
-  val: { flex: 1, fontWeight: "600" },
+  val: { flex: 1, fontWeight: "600", color: "#111" },
+
   fab: {
     position: "absolute",
     right: 16,
     bottom: 76,
     backgroundColor: BLUE,
-    height: 52,
-    paddingHorizontal: 16,
-    borderRadius: 16,
+    height: 54,
+    paddingHorizontal: 18,
+    borderRadius: 18,
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
     shadowColor: "#000",
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
     shadowOffset: { width: 0, height: 6 },
     elevation: 6,
   },
-  fabText: { color: "#fff", fontWeight: "800" },
-  tabbar: {
-    position: "absolute",
-    left: 16,
-    right: 16,
-    bottom: 16,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: BORDER,
-    alignItems: "center",
-    justifyContent: "space-around",
-    flexDirection: "row",
-  },
+  fabText: { color: "#fff", fontWeight: "800", fontSize: 15 },
 });
