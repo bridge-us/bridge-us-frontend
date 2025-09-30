@@ -28,6 +28,7 @@ export default function MentorDetailScreen({ route, navigation }) {
   };
 
   const [openGuide, setOpenGuide] = useState(false);
+  const fromApplied = route?.params?.fromApplied === true;
 
   // ✅ 신청 확인 → 완료 화면으로 이동
   const onConfirmApply = () => {
@@ -139,10 +140,27 @@ export default function MentorDetailScreen({ route, navigation }) {
         </View>
       </ScrollView>
 
-      {/* 하단 신청 버튼 */}
-      <Pressable style={s.applyBtn} onPress={() => setOpenGuide(true)}>
-        <Text style={s.applyText}>신청하기</Text>
-      </Pressable>
+      {/* 하단 액션 버튼 */}
+      {fromApplied ? (
+        <View style={s.bottomActions}>
+          <Pressable
+            style={[s.altBtn, s.secondaryBtn]}
+            onPress={() => navigation.navigate('MentorReviews', { id: mentor.id, name: mentor.name })}
+          >
+            <Text style={[s.altBtnText, { color: '#111' }]}>리뷰 보기</Text>
+          </Pressable>
+          <Pressable
+            style={[s.altBtn, s.primaryBtn]}
+            onPress={() => navigation.navigate('ChatRoom', { mentorId: mentor.id, name: mentor.name })}
+          >
+            <Text style={[s.altBtnText, { color: '#fff' }]}>채팅하기</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <Pressable style={s.applyBtn} onPress={() => setOpenGuide(true)}>
+          <Text style={s.applyText}>신청하기</Text>
+        </Pressable>
+      )}
 
       {/* 신청 유의사항 모달 */}
       <Modal visible={openGuide} transparent animationType="fade">
@@ -272,6 +290,32 @@ const s = StyleSheet.create({
     elevation: 6,
   },
   applyText: { color: "#fff", fontWeight: "800", fontSize: 17 },
+
+  bottomActions: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    bottom: 16,
+    flexDirection: 'row',
+    gap: 10,
+  },
+  altBtn: {
+    flex: 1,
+    height: 56,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  primaryBtn: {
+    backgroundColor: BLUE,
+    borderColor: BLUE,
+  },
+  secondaryBtn: {
+    backgroundColor: '#F3F4F6',
+    borderColor: BORDER,
+  },
+  altBtnText: { fontWeight: '800', fontSize: 16 },
 
   backdrop: {
     ...StyleSheet.absoluteFillObject,

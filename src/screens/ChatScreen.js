@@ -9,7 +9,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import BottomTab from "../components/BottomTab";
+import { useRole } from "../context/RoleContext";
 
 const BLUE = "#2563EB";
 const BORDER = "#E5E7EB";
@@ -67,7 +67,17 @@ const MOCK_REQUESTS = [
 ];
 
 export default function ChatScreen({ navigation }) {
+  const { role } = useRole();
+  const isMentee = role === 'MENTEE';
+
   const [tab, setTab] = useState(TABS.PROGRESS);
+
+  React.useEffect(() => {
+    if (isMentee && tab === TABS.REQUESTS) {
+      setTab(TABS.PROGRESS);
+    }
+  }, [isMentee, tab]);
+
   const data = useMemo(
     () => (tab === TABS.PROGRESS ? MOCK_PROGRESS : MOCK_REQUESTS),
     [tab]
@@ -163,19 +173,21 @@ export default function ChatScreen({ navigation }) {
             진행 중인 멘토링
           </Text>
         </Pressable>
-        <Pressable
-          style={[s.tabBtn, tab === TABS.REQUESTS && s.tabActive]}
-          onPress={() => setTab(TABS.REQUESTS)}
-        >
-          <Text style={[s.tabText, tab === TABS.REQUESTS && s.tabTextActive]}>
-            신청 관리
-          </Text>
-        </Pressable>
+        {!isMentee && (
+          <Pressable
+            style={[s.tabBtn, tab === TABS.REQUESTS && s.tabActive]}
+            onPress={() => setTab(TABS.REQUESTS)}
+          >
+            <Text style={[s.tabText, tab === TABS.REQUESTS && s.tabTextActive]}>
+              신청 관리
+            </Text>
+          </Pressable>
+        )}
       </View>
 
       {/* 리스트 */}
       <FlatList
-        contentContainerStyle={{ padding: 16, paddingBottom: 110 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 16 }}
         data={data}
         keyExtractor={(it) => String(it.id)}
         renderItem={tab === TABS.PROGRESS ? renderProgress : renderRequest}
@@ -186,8 +198,6 @@ export default function ChatScreen({ navigation }) {
           </View>
         }
       />
-
-      <BottomTab navigation={navigation} active="chat" />
     </SafeAreaView>
   );
 }

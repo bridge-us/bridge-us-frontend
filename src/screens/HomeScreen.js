@@ -7,8 +7,10 @@ import {
   Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useRole } from "../context/RoleContext";
 
 export default function HomeScreen({ navigation }) {
+  const { setRole } = useRole();
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <View style={s.container}>
@@ -17,7 +19,10 @@ export default function HomeScreen({ navigation }) {
         {/* 멘토 카드 */}
         <Pressable
           style={({ pressed }) => [s.card, pressed && s.pressed]}
-          onPress={() => navigation.navigate("RegisterStep1")}
+          onPress={() => {
+            setRole('MENTOR');
+            navigation.navigate('RegisterStep1');
+          }}
         >
           <Ionicons name="school-outline" size={28} color="#2563EB" />
           <Text style={s.cardTitle}>멘토</Text>
@@ -27,7 +32,10 @@ export default function HomeScreen({ navigation }) {
         {/* 멘티 카드 */}
         <Pressable
           style={({ pressed }) => [s.card, pressed && s.pressed]}
-          onPress={() => navigation.navigate("MenteeLanding")}
+          onPress={() => {
+            setRole('MENTEE');
+            navigation.navigate('MenteeLanding');
+          }}
         >
           <Ionicons name="people-outline" size={28} color="#2563EB" />
           <Text style={s.cardTitle}>멘티</Text>

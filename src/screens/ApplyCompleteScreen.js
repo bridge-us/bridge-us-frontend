@@ -27,7 +27,7 @@ export default function ApplyCompleteScreen({ navigation, route }) {
         <View style={s.buttons}>
           <Pressable
             style={[s.btn, s.gray]}
-            onPress={() => navigation.navigate("Main")}
+            onPress={() => navigation.navigate("MenteeLanding")}
           >
             <Text style={[s.btnText, { color: "#111" }]}>홈으로</Text>
           </Pressable>

@@ -10,6 +10,8 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import BottomTab from "../components/BottomTab";
+import { useRole } from "../context/RoleContext";
 
 const BLUE = "#2563EB";
 const BORDER = "#E5E7EB";
@@ -49,11 +51,20 @@ const MOCK_REQUESTS = [
 ];
 
 export default function MyPageScreen({ navigation }) {
+  const { role } = useRole();
+  const isMentee = role === 'MENTEE';
+
   // progress | waiting | inbox(신청 관리)
   const [tab, setTab] = useState("progress");
   const [progress, setProgress] = useState(MOCK_PROGRESS);
   const [waiting] = useState(MOCK_WAITING);
   const [requests, setRequests] = useState(MOCK_REQUESTS);
+
+  React.useEffect(() => {
+    if (isMentee && tab === 'inbox') {
+      setTab('progress');
+    }
+  }, [isMentee, tab]);
 
   const data = useMemo(() => {
     if (tab === "progress") return progress;
@@ -140,7 +151,7 @@ export default function MyPageScreen({ navigation }) {
   );
 
   const renderItem = (props) =>
-    tab === "inbox" ? renderRequestCard(props) : renderCommonCard(props);
+    tab === 'inbox' && !isMentee ? renderRequestCard(props) : renderCommonCard(props);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -170,19 +181,19 @@ export default function MyPageScreen({ navigation }) {
             대기 중인 멘토링
           </Text>
         </Pressable>
-        <Pressable
-          style={[s.tabBtn, tab === "inbox" && s.tabActive]}
-          onPress={() => setTab("inbox")}
-        >
-          <Text style={[s.tabText, tab === "inbox" && s.tabTextActive]}>
-            신청 관리
-          </Text>
-        </Pressable>
+        {!isMentee && (
+          <Pressable
+            style={[s.tabBtn, tab === 'inbox' && s.tabActive]}
+            onPress={() => setTab('inbox')}
+          >
+            <Text style={[s.tabText, tab === 'inbox' && s.tabTextActive]}>신청 관리</Text>
+          </Pressable>
+        )}
       </View>
 
       {/* 리스트 */}
       <FlatList
-        contentContainerStyle={{ padding: 16, paddingBottom: 110 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 16 }}
         data={data}
         keyExtractor={(it) => String(it.id)}
         renderItem={renderItem}
@@ -193,32 +204,7 @@ export default function MyPageScreen({ navigation }) {
         }
       />
 
-      {/* 하단 탭바 (Home, Chat, Board, My) */}
-      <View style={s.tabbar}>
-        {/* 홈 */}
-        <Pressable hitSlop={10} onPress={() => navigation.navigate("Main")}>
-          <Ionicons name="home-outline" size={22} color="#9CA3AF" />
-        </Pressable>
-
-        {/* 채팅 (2번째) */}
-        <Pressable hitSlop={10} onPress={() => alert("채팅방 준비중")}>
-          <Ionicons
-            name="chatbubble-ellipses-outline"
-            size={22}
-            color="#9CA3AF"
-          />
-        </Pressable>
-
-        {/* 게시판 (3번째) */}
-        <Pressable hitSlop={10} onPress={() => navigation.navigate("Board")}>
-          <Ionicons name="newspaper-outline" size={22} color="#9CA3AF" />
-        </Pressable>
-
-        {/* 현재 페이지 강조 */}
-        <Pressable hitSlop={10}>
-          <Ionicons name="person-circle-outline" size={24} color={BLUE} />
-        </Pressable>
-      </View>
+      <BottomTab navigation={navigation} active="MyPage" />
     </SafeAreaView>
   );
 }
@@ -308,19 +294,4 @@ const s = StyleSheet.create({
   btnText: { fontWeight: "800" },
   btnTextOutline: { color: "#111" },
   btnTextFill: { color: "#fff" },
-
-  tabbar: {
-    position: "absolute",
-    left: 16,
-    right: 16,
-    bottom: 16,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: BORDER,
-    alignItems: "center",
-    justifyContent: "space-around",
-    flexDirection: "row",
-  },
 });

@@ -1,61 +1,40 @@
-import React from "react";
-import { View, Pressable, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import React from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-const BLUE = "#2563EB";
-const BORDER = "#E5E7EB";
+const BLUE = '#2563EB';
+const GRAY = '#6B7280';
 
 export default function BottomTab({ navigation, active }) {
   return (
-    <View style={s.tabbar}>
-      <Pressable onPress={() => navigation.navigate("Main")} hitSlop={10}>
-        <Ionicons
-          name="home-outline"
-          size={22}
-          color={active === "home" ? BLUE : "#9CA3AF"}
-        />
-      </Pressable>
-
-      <Pressable onPress={() => navigation.navigate("Chat")} hitSlop={10}>
-        <Ionicons
-          name="chatbubble-ellipses-outline"
-          size={22}
-          color={active === "chat" ? BLUE : "#9CA3AF"}
-        />
-      </Pressable>
-
-      <Pressable onPress={() => navigation.navigate("Board")} hitSlop={10}>
-        <Ionicons
-          name="newspaper-outline"
-          size={22}
-          color={active === "board" ? BLUE : "#9CA3AF"}
-        />
-      </Pressable>
-
-      <Pressable onPress={() => navigation.navigate("MyPage")} hitSlop={10}>
-        <Ionicons
-          name="person-circle-outline"
-          size={24}
-          color={active === "mypage" ? BLUE : "#9CA3AF"}
-        />
-      </Pressable>
+    <View style={s.bar}>
+      <TabButton label="홈" icon="home" active={active === 'Home'} onPress={() => navigation.navigate('Main')} />
+      <TabButton label="채팅" icon="chatbubbles" active={active === 'Chat'} onPress={() => navigation.navigate('Chat')} />
+      <TabButton label="게시판" icon="document-text" active={active === 'Board'} onPress={() => navigation.navigate('Board')} />
+      <TabButton label="마이페이지" icon="person" active={active === 'MyPage'} onPress={() => navigation.navigate('MyPage')} />
     </View>
   );
 }
 
+function TabButton({ label, icon, active, onPress }) {
+  return (
+    <Pressable style={s.btn} onPress={onPress}>
+      <Ionicons name={icon} size={22} color={active ? BLUE : GRAY} />
+      <Text style={[s.label, { color: active ? BLUE : GRAY }]}>{label}</Text>
+    </Pressable>
+  );
+}
+
 const s = StyleSheet.create({
-  tabbar: {
-    position: "absolute",
-    left: 16,
-    right: 16,
-    bottom: 16,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: BORDER,
-    alignItems: "center",
-    justifyContent: "space-around",
-    flexDirection: "row",
+  bar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderColor: '#E5E7EB',
+    backgroundColor: '#fff',
   },
+  btn: { alignItems: 'center', gap: 2 },
+  label: { fontSize: 11, marginTop: 2 },
 });
