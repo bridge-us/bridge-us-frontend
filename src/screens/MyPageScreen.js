@@ -1,297 +1,192 @@
 // src/screens/MyPageScreen.js
-import React, { useMemo, useState } from "react";
-import {
-  SafeAreaView,
-  View,
-  Text,
-  Pressable,
-  FlatList,
-  StyleSheet,
-  Alert,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import BottomTab from "../components/BottomTab";
-import { useRole } from "../context/RoleContext";
+import React, { useState } from 'react';
+import { SafeAreaView, View, Text, Pressable, StyleSheet, ScrollView, Image, Alert, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import BottomTab from '../components/BottomTab';
 
-const BLUE = "#2563EB";
-const BORDER = "#E5E7EB";
-const GRAY = "#6B7280";
-
-// 더미 데이터
-const MOCK_PROGRESS = [
-  {
-    id: "p1",
-    name: "김현진",
-    headline: "28년 금융권 경력 노하우",
-    career: "국민은행 (28년)",
-    category: "금융",
-    mode: "온라인",
-  },
-];
-const MOCK_WAITING = [];
-
-// 신규: 신청 관리(멘티 신청서)
-const MOCK_REQUESTS = [
-  {
-    id: "r1",
-    mentee: "박지수",
-    topic: "면접 대비 1:1 코칭 요청",
-    memo: "이력서/자소서 체크와 예상 질문 준비 부탁드려요.",
-    wantMethod: "온라인",
-    requestedAt: "어제",
-  },
-  {
-    id: "r2",
-    mentee: "강윤아",
-    topic: "iOS 포트폴리오 점검",
-    memo: "아키텍처/코드 리뷰 받고 싶습니다.",
-    wantMethod: "오프라인",
-    requestedAt: "3일 전",
-  },
-];
+const BLUE = '#2563EB';
+const BORDER = '#E5E7EB';
+const GRAY = '#6B7280';
 
 export default function MyPageScreen({ navigation }) {
-  const { role } = useRole();
-  const isMentee = role === 'MENTEE';
+  // TODO: 실제 사용자 정보로 치환
+  const userName = '김재헌';
 
-  // progress | waiting | inbox(신청 관리)
-  const [tab, setTab] = useState("progress");
-  const [progress, setProgress] = useState(MOCK_PROGRESS);
-  const [waiting] = useState(MOCK_WAITING);
-  const [requests, setRequests] = useState(MOCK_REQUESTS);
+  const [avatarUri, setAvatarUri] = useState(null);
 
-  React.useEffect(() => {
-    if (isMentee && tab === 'inbox') {
-      setTab('progress');
+  async function ensureLibraryPermission() {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('권한 필요', '앨범 접근 권한이 필요합니다. 설정에서 허용해주세요.');
+      return false;
     }
-  }, [isMentee, tab]);
+    return true;
+  }
 
-  const data = useMemo(() => {
-    if (tab === "progress") return progress;
-    if (tab === "waiting") return waiting;
-    return requests;
-  }, [tab, progress, waiting, requests]);
+  async function ensureCameraPermission() {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('권한 필요', '카메라 접근 권한이 필요합니다. 설정에서 허용해주세요.');
+      return false;
+    }
+    return true;
+  }
 
-  /** ---------- 진행/대기 카드 ---------- */
-  const renderCommonCard = ({ item }) => (
-    <View style={s.card}>
-      <Text style={s.smallTag}>{item.category}</Text>
-      <Text style={s.name}>{item.name}</Text>
-      <Text style={s.headline}>{item.headline}</Text>
-      <View style={s.row}>
-        <Text style={s.key}>경력</Text>
-        <Text style={s.val}>{item.career || "-"}</Text>
-      </View>
-      <View style={s.row}>
-        <Text style={s.key}>진행방식</Text>
-        <Text style={s.val}>{item.mode}</Text>
-      </View>
-    </View>
-  );
+  async function pickFromLibrary() {
+    const ok = await ensureLibraryPermission();
+    if (!ok) return;
+    const res = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.9,
+    });
+    if (!res.canceled && res.assets && res.assets[0]?.uri) {
+      setAvatarUri(res.assets[0].uri);
+    }
+  }
 
-  /** ---------- 신청 관리 카드 ---------- */
-  const onApprove = (req) => {
-    // 승인: 신청함에서 제거 + 진행중에 추가
-    setRequests((prev) => prev.filter((r) => r.id !== req.id));
-    setProgress((prev) => [
-      {
-        id: `p-${Date.now()}`,
-        name: req.mentee,
-        headline: req.topic,
-        career: "",
-        category: "멘토링",
-        mode: req.wantMethod,
-      },
-      ...prev,
+  async function takePhoto() {
+    const ok = await ensureCameraPermission();
+    if (!ok) return;
+    const res = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.9,
+    });
+    if (!res.canceled && res.assets && res.assets[0]?.uri) {
+      setAvatarUri(res.assets[0].uri);
+    }
+  }
+
+  function onEditAvatar() {
+    Alert.alert('프로필 사진', '변경 방식을 선택하세요', [
+      { text: '앨범에서 선택', onPress: pickFromLibrary },
+      { text: '카메라로 촬영', onPress: takePhoto },
+      { text: '취소', style: 'cancel' },
     ]);
-    Alert.alert("승인 완료", `${req.mentee} 님 신청을 승인했어요.`);
-  };
-
-  const onReject = (req) => {
-    setRequests((prev) => prev.filter((r) => r.id !== req.id));
-    Alert.alert("거절 완료", `${req.mentee} 님 신청을 거절했어요.`);
-  };
-
-  const renderRequestCard = ({ item }) => (
-    <View style={s.card}>
-      <View style={s.reqHeader}>
-        <Text style={s.reqBadge}>신청</Text>
-        <Text style={s.reqTime}>{item.requestedAt}</Text>
-      </View>
-
-      <Text style={s.reqTitle}>{item.topic}</Text>
-
-      <View style={{ marginTop: 8 }}>
-        <View style={s.row}>
-          <Text style={s.key}>신청자</Text>
-          <Text style={s.val}>{item.mentee}</Text>
-        </View>
-        <View style={s.row}>
-          <Text style={s.key}>방식</Text>
-          <Text style={s.val}>{item.wantMethod}</Text>
-        </View>
-      </View>
-
-      {!!item.memo && (
-        <View style={{ marginTop: 10 }}>
-          <Text style={s.key}>메모</Text>
-          <Text style={[s.val, { marginTop: 4 }]}>{item.memo}</Text>
-        </View>
-      )}
-
-      <View style={s.reqActions}>
-        <Pressable style={[s.btn, s.btnOutline]} onPress={() => onReject(item)}>
-          <Text style={[s.btnText, s.btnTextOutline]}>거절</Text>
-        </Pressable>
-        <Pressable style={[s.btn, s.btnFill]} onPress={() => onApprove(item)}>
-          <Text style={[s.btnText, s.btnTextFill]}>승인</Text>
-        </Pressable>
-      </View>
-    </View>
-  );
-
-  const renderItem = (props) =>
-    tab === 'inbox' && !isMentee ? renderRequestCard(props) : renderCommonCard(props);
+  }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-      {/* 상단 */}
-      <View style={s.topBar}>
-        <Text style={s.title}>마이페이지</Text>
-        <Pressable hitSlop={10} onPress={() => alert("검색 준비중")}>
-          <Ionicons name="search" size={20} color="#111" />
-        </Pressable>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      {/* 헤더: Bridge · Us */}
+      <View style={s.header}>
+        <Text style={s.brand}><Text style={{ fontWeight: '900' }}>Bridge</Text> <Text style={{ color: BLUE, fontWeight: '900' }}>· Us</Text></Text>
       </View>
 
-      {/* 탭 */}
-      <View style={s.tabs}>
-        <Pressable
-          style={[s.tabBtn, tab === "progress" && s.tabActive]}
-          onPress={() => setTab("progress")}
-        >
-          <Text style={[s.tabText, tab === "progress" && s.tabTextActive]}>
-            진행 중인 멘토링
-          </Text>
-        </Pressable>
-        <Pressable
-          style={[s.tabBtn, tab === "waiting" && s.tabActive]}
-          onPress={() => setTab("waiting")}
-        >
-          <Text style={[s.tabText, tab === "waiting" && s.tabTextActive]}>
-            대기 중인 멘토링
-          </Text>
-        </Pressable>
-        {!isMentee && (
-          <Pressable
-            style={[s.tabBtn, tab === 'inbox' && s.tabActive]}
-            onPress={() => setTab('inbox')}
-          >
-            <Text style={[s.tabText, tab === 'inbox' && s.tabTextActive]}>신청 관리</Text>
-          </Pressable>
-        )}
-      </View>
-
-      {/* 리스트 */}
-      <FlatList
-        contentContainerStyle={{ padding: 16, paddingBottom: 16 }}
-        data={data}
-        keyExtractor={(it) => String(it.id)}
-        renderItem={renderItem}
-        ListEmptyComponent={
-          <View style={{ marginTop: 60, alignItems: "center" }}>
-            <Text style={{ color: GRAY }}>데이터가 없습니다.</Text>
+      <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 24 }}>
+        {/* 아바타 + 이름 */}
+        <View style={s.centerBox}>
+          <View style={s.avatarWrap}>
+            <View style={s.avatarCircle}>
+              {avatarUri ? (
+                <Image source={{ uri: avatarUri }} style={s.avatarImg} />
+              ) : (
+                <Ionicons name="person-outline" size={48} color="#111" />
+              )}
+            </View>
+            <Pressable
+              style={s.editBtn}
+              hitSlop={8}
+              accessibilityLabel="프로필 수정"
+              accessibilityRole="button"
+              onPress={onEditAvatar}
+            >
+              <Ionicons name="pencil" size={16} color="#fff" />
+            </Pressable>
           </View>
-        }
-      />
+          <Text style={s.userName}>{userName}</Text>
+        </View>
 
+        {/* 메뉴 버튼들 */}
+        <View style={{ gap: 12, marginTop: 8 }}>
+          <MenuButton label="회원정보 수정" onPress={() => navigation.navigate('ProfileEdit')} />
+          <MenuButton label="내 멘토링 관리" onPress={() => navigation.navigate('AppliedMentoring')} />
+          <MenuButton label="내 게시물 관리" onPress={() => { /* navigation.navigate('MyPosts') */ }} />
+          <MenuButton label="회원탈퇴" onPress={() => { /* TODO: 탈퇴 플로우 */ }} />
+        </View>
+
+        {/* 로그아웃 버튼 */}
+        <Pressable style={s.logoutBtn} onPress={() => { /* TODO: 로그아웃 */ }}>
+          <Text style={s.logoutTxt}>로그아웃</Text>
+        </Pressable>
+      </ScrollView>
+
+      {/* 하단 탭 */}
       <BottomTab navigation={navigation} active="MyPage" />
     </SafeAreaView>
   );
 }
 
+function MenuButton({ label, onPress }) {
+  return (
+    <Pressable style={s.menuBtn} onPress={onPress}>
+      <Text style={s.menuTxt}>{label}</Text>
+      <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+    </Pressable>
+  );
+}
+
 const s = StyleSheet.create({
-  topBar: {
-    height: 50,
+  header: {
+    height: 56,
+    justifyContent: 'center',
     paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    borderBottomWidth: 1,
+    borderColor: BORDER,
+    backgroundColor: '#fff',
   },
-  title: { fontSize: 20, fontWeight: "800" },
+  brand: { fontSize: 22, color: '#111' },
 
-  tabs: {
-    flexDirection: "row",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    gap: 8,
-  },
-  tabBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 18,
-    backgroundColor: "#F3F4F6",
-  },
-  tabActive: {
-    backgroundColor: BLUE,
-  },
-  tabText: { color: "#111827", fontWeight: "600" },
-  tabTextActive: { color: "#fff" },
-
-  card: {
-    backgroundColor: "#fff",
+  centerBox: { alignItems: 'center', marginTop: 12, marginBottom: 16 },
+  avatarWrap: { position: 'relative', width: 100, height: 100 },
+  avatarCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
     borderColor: BORDER,
-    borderRadius: 18,
-    padding: 16,
-    marginBottom: 12,
   },
-  smallTag: { color: "#9CA3AF", fontSize: 13, marginBottom: 6 },
-  name: { fontSize: 18, fontWeight: "800" },
-  headline: { marginTop: 6, fontSize: 15, fontWeight: "700" },
-  row: { marginTop: 6, flexDirection: "row", gap: 10 },
-  key: { width: 56, color: GRAY },
-  val: { flex: 1, fontWeight: "600" },
+  avatarImg: { width: 100, height: 100, borderRadius: 50 },
+  editBtn: {
+    position: 'absolute',
+    right: -2,
+    bottom: -2,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: BLUE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  userName: { marginTop: 10, fontSize: 18, fontWeight: '800', color: '#111' },
 
-  // 신청 관리 전용
-  reqHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  menuBtn: {
+    height: 48,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: BORDER,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  reqBadge: {
-    backgroundColor: "#EEF2FF",
-    color: BLUE,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+  menuTxt: { fontSize: 14, fontWeight: '700', color: '#111' },
+
+  logoutBtn: {
+    height: 48,
     borderRadius: 12,
-    fontWeight: "700",
-  },
-  reqTime: { color: GRAY, fontSize: 13 },
-  reqTitle: { marginTop: 10, fontSize: 16, fontWeight: "800" },
-
-  reqActions: {
-    marginTop: 14,
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 10,
-  },
-  btn: {
-    height: 40,
-    minWidth: 84,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  btnOutline: {
-    borderWidth: 1,
-    borderColor: BORDER,
-    backgroundColor: "#fff",
-  },
-  btnFill: {
     backgroundColor: BLUE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
   },
-  btnText: { fontWeight: "800" },
-  btnTextOutline: { color: "#111" },
-  btnTextFill: { color: "#fff" },
+  logoutTxt: { color: '#fff', fontWeight: '800' },
 });
