@@ -15,6 +15,7 @@ const BLUE = "#2563EB";
 const BORDER = "#E5E7EB";
 
 export default function MyPageScreen({ navigation }) {
+  /** 로그아웃 */
   const handleLogout = () => {
     Alert.alert("로그아웃", "로그아웃 하시겠습니까?", [
       { text: "취소", style: "cancel" },
@@ -22,6 +23,7 @@ export default function MyPageScreen({ navigation }) {
     ]);
   };
 
+  /** 회원탈퇴 */
   const handleWithdraw = () => {
     Alert.alert("회원탈퇴", "정말 회원탈퇴를 진행하시겠습니까?", [
       { text: "취소", style: "cancel" },
@@ -31,7 +33,7 @@ export default function MyPageScreen({ navigation }) {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-      {/* 상단 로고 */}
+      {/* 상단 로고 (왼쪽 정렬) */}
       <View style={s.header}>
         <Text style={s.brandBridge}>Bridge</Text>
         <Text style={s.brandDot}> · </Text>
@@ -48,22 +50,25 @@ export default function MyPageScreen({ navigation }) {
 
       {/* 메뉴 버튼 영역 */}
       <View style={s.menuBox}>
+        {/* 회원정보 수정 버튼 */}
         <Pressable
           style={s.menuItem}
-          onPress={() => alert("회원정보 수정 화면으로 이동")}
+          onPress={() => navigation.navigate("EditProfile")}
         >
           <Ionicons name="person-outline" size={20} color="#111" />
           <Text style={s.menuText}>회원정보 수정</Text>
         </Pressable>
 
+        {/* 내 멘토링 관리 */}
         <Pressable
           style={s.menuItem}
-          onPress={() => alert("내 멘토링 관리로 이동")}
+          onPress={() => alert("내 멘토링 관리 화면으로 이동")}
         >
           <Ionicons name="chatbubbles-outline" size={20} color="#111" />
           <Text style={s.menuText}>내 멘토링 관리</Text>
         </Pressable>
 
+        {/* 회원탈퇴 */}
         <Pressable style={s.menuItem} onPress={handleWithdraw}>
           <Ionicons name="alert-circle-outline" size={20} color="red" />
           <Text style={[s.menuText, { color: "red" }]}>회원탈퇴</Text>
@@ -82,7 +87,7 @@ export default function MyPageScreen({ navigation }) {
 }
 
 const s = StyleSheet.create({
-  /** 상단 로고 영역 (왼쪽 정렬) */
+  /** 상단 로고 영역 */
   header: {
     flexDirection: "row",
     justifyContent: "flex-start",

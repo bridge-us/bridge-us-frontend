@@ -28,8 +28,9 @@ import BoardScreen from "./src/screens/BoardScreen";
 import BoardPostScreen from "./src/screens/BoardPostScreen";
 import BoardWriteScreen from "./src/screens/BoardWriteScreen";
 
-// ✅ 새로 추가한 마이페이지
+// ✅ 마이페이지 관련
 import MyPageScreen from "./src/screens/MyPageScreen";
+import EditProfileScreen from "./src/screens/EditProfileScreen"; // 새로 추가한 회원정보 수정 화면
 
 const Stack = createNativeStackNavigator();
 
@@ -67,8 +68,9 @@ export default function App() {
         <Stack.Screen name="BoardPost" component={BoardPostScreen} />
         <Stack.Screen name="BoardWrite" component={BoardWriteScreen} />
 
-        {/* ✅ 마이페이지 추가 */}
+        {/* ✅ 마이페이지 관련 */}
         <Stack.Screen name="MyPage" component={MyPageScreen} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
