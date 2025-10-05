@@ -48,6 +48,7 @@ const MOCK = [
 export default function MainScreen({ navigation, route }) {
   const [list, setList] = useState(MOCK);
 
+  // 신규 등록된 멘토를 리스트에 추가 (RegisterStep 이후 돌아왔을 때)
   useEffect(() => {
     const incoming = route?.params?.newMentor;
     if (incoming) {
@@ -58,6 +59,7 @@ export default function MainScreen({ navigation, route }) {
     }
   }, [route?.params?.newMentor]);
 
+  /** ---------- 멘토 카드 ---------- */
   const renderItem = ({ item }) => (
     <Pressable
       style={s.card}
@@ -98,17 +100,26 @@ export default function MainScreen({ navigation, route }) {
           <Text style={s.brandUs}>Us</Text>
         </View>
 
-        <Pressable hitSlop={10} onPress={() => alert("검색 준비중")}>
+        <Pressable
+          hitSlop={10}
+          onPress={() => alert("검색 기능 준비중입니다.")}
+        >
           <Ionicons name="search" size={28} color="#111" />
         </Pressable>
       </View>
 
+      {/* 멘토 카드 리스트 */}
       <FlatList
         contentContainerStyle={{ padding: 16, paddingBottom: 110 }}
         data={list}
         keyExtractor={(item) => String(item.id)}
         renderItem={renderItem}
         ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
+        ListEmptyComponent={
+          <View style={{ marginTop: 60, alignItems: "center" }}>
+            <Text style={{ color: GRAY }}>등록된 멘토가 없습니다.</Text>
+          </View>
+        }
       />
 
       {/* 플로팅 등록 버튼 */}
@@ -159,6 +170,7 @@ const s = StyleSheet.create({
     letterSpacing: -0.3,
   },
 
+  /* 멘토 카드 */
   card: {
     backgroundColor: "#fff",
     borderWidth: 1,
@@ -192,6 +204,7 @@ const s = StyleSheet.create({
   key: { width: 56, color: GRAY },
   val: { flex: 1, fontWeight: "600", color: "#111" },
 
+  /* 등록 버튼 */
   fab: {
     position: "absolute",
     right: 16,

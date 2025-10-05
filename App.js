@@ -16,8 +16,8 @@ import RegisterStep4Confirm from "./src/screens/RegisterStep4Confirm";
 // 기타
 import MentorDetailScreen from "./src/screens/MentorDetailScreen";
 import ChatScreen from "./src/screens/ChatScreen";
-import ApplyCompleteScreen from "./src/screens/ApplyCompleteScreen";
 import ChatRoomScreen from "./src/screens/ChatRoomScreen";
+import ApplyCompleteScreen from "./src/screens/ApplyCompleteScreen";
 
 // 추가된 화면
 import MentorReviewsScreen from "./src/screens/MentorReviewsScreen";
@@ -27,6 +27,9 @@ import OpenChatRoomScreen from "./src/screens/OpenChatRoomScreen";
 import BoardScreen from "./src/screens/BoardScreen";
 import BoardPostScreen from "./src/screens/BoardPostScreen";
 import BoardWriteScreen from "./src/screens/BoardWriteScreen";
+
+// ✅ 새로 추가한 마이페이지
+import MyPageScreen from "./src/screens/MyPageScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -63,6 +66,9 @@ export default function App() {
         <Stack.Screen name="Board" component={BoardScreen} />
         <Stack.Screen name="BoardPost" component={BoardPostScreen} />
         <Stack.Screen name="BoardWrite" component={BoardWriteScreen} />
+
+        {/* ✅ 마이페이지 추가 */}
+        <Stack.Screen name="MyPage" component={MyPageScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
