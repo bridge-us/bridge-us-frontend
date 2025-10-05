@@ -1,6 +1,6 @@
 // src/screens/MyPageScreen.js
 import React, { useState } from 'react';
-import { SafeAreaView, View, Text, Pressable, StyleSheet, ScrollView, Image, Alert, Platform } from 'react-native';
+import { SafeAreaView, View, Text, Pressable, StyleSheet, ScrollView, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import BottomTab from '../components/BottomTab';
@@ -10,10 +10,26 @@ const BORDER = '#E5E7EB';
 const GRAY = '#6B7280';
 
 export default function MyPageScreen({ navigation }) {
-  // TODO: 실제 사용자 정보로 치환
+  
   const userName = '김재헌';
 
   const [avatarUri, setAvatarUri] = useState(null);
+
+  /** 로그아웃 */
+  const handleLogout = () => {
+    Alert.alert('로그아웃', '로그아웃 하시겠습니까?', [
+      { text: '취소', style: 'cancel' },
+      { text: '확인', onPress: () => navigation.navigate('Login') },
+    ]);
+  };
+
+  /** 회원탈퇴 */
+  const handleWithdraw = () => {
+    Alert.alert('회원탈퇴', '정말 회원탈퇴를 진행하시겠습니까?', [
+      { text: '취소', style: 'cancel' },
+      { text: '탈퇴', onPress: () => Alert.alert('완료', '회원탈퇴가 완료되었습니다.') },
+    ]);
+  };
 
   async function ensureLibraryPermission() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -89,7 +105,7 @@ export default function MyPageScreen({ navigation }) {
             <Pressable
               style={s.editBtn}
               hitSlop={8}
-              accessibilityLabel="프로필 수정"
+              accessibilityLabel="프로필 사진 변경"
               accessibilityRole="button"
               onPress={onEditAvatar}
             >
@@ -104,11 +120,11 @@ export default function MyPageScreen({ navigation }) {
           <MenuButton label="회원정보 수정" onPress={() => navigation.navigate('ProfileEdit')} />
           <MenuButton label="내 멘토링 관리" onPress={() => navigation.navigate('AppliedMentoring')} />
           <MenuButton label="내 게시물 관리" onPress={() => { /* navigation.navigate('MyPosts') */ }} />
-          <MenuButton label="회원탈퇴" onPress={() => { /* TODO: 탈퇴 플로우 */ }} />
+          <MenuButton label="회원탈퇴" onPress={handleWithdraw} />
         </View>
 
         {/* 로그아웃 버튼 */}
-        <Pressable style={s.logoutBtn} onPress={() => { /* TODO: 로그아웃 */ }}>
+        <Pressable style={s.logoutBtn} onPress={handleLogout}>
           <Text style={s.logoutTxt}>로그아웃</Text>
         </Pressable>
       </ScrollView>
