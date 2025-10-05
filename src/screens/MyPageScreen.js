@@ -116,7 +116,7 @@ export default function MyPageScreen({ navigation }) {
         </View>
 
         {/* 메뉴 버튼들 */}
-        <View style={{ gap: 12, marginTop: 8 }}>
+        <View style={{ gap: 16, marginTop: 16 }}>
           <MenuButton label="회원정보 수정" onPress={() => navigation.navigate('ProfileEdit')} />
           <MenuButton label="내 멘토링 관리" onPress={() => navigation.navigate('AppliedMentoring')} />
           <MenuButton label="내 게시물 관리" onPress={() => { /* navigation.navigate('MyPosts') */ }} />
@@ -184,25 +184,35 @@ const s = StyleSheet.create({
   userName: { marginTop: 10, fontSize: 18, fontWeight: '800', color: '#111' },
 
   menuBtn: {
-    height: 48,
-    paddingHorizontal: 16,
-    borderRadius: 14,
+    height: 56,
+    paddingHorizontal: 20,
+    borderRadius: 16,
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: BORDER,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
-  menuTxt: { fontSize: 14, fontWeight: '700', color: '#111' },
+  menuTxt: { fontSize: 15, fontWeight: '700', color: '#111' },
 
   logoutBtn: {
-    height: 48,
-    borderRadius: 12,
+    height: 54,
+    borderRadius: 14,
     backgroundColor: BLUE,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 16,
+    marginTop: 24,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
   },
   logoutTxt: { color: '#fff', fontWeight: '800' },
 });

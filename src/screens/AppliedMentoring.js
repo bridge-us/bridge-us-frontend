@@ -51,14 +51,13 @@ export default function AppliedMentoring({ navigation }) {
       <View style={s.topBar}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Pressable
-            hitSlop={12}
+            hitSlop={10}
             accessibilityLabel="뒤로가기"
             accessibilityRole="button"
-            onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MyPage'))}
+            onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Main'))}
             style={s.backBtn}
           >
-            <Ionicons name="chevron-back" size={24} color="#111" />
-            <Text style={s.backTxt}>뒤로가기</Text>
+            <Ionicons name="chevron-back" size={28} color="#111" />
           </Pressable>
           <View style={s.brand}>
             <Text style={s.brandBridge}>Bridge</Text>

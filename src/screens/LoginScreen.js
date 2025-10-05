@@ -1,146 +1,75 @@
-import React, { useState } from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  StyleSheet,
-} from "react-native";
+import React from 'react';
+import { SafeAreaView, View, Text, Image, Pressable, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+
+const BLUE = '#2563EB';
+const KAKAO_YELLOW = '#FEE500';
+const BORDER = '#E5E7EB';
 
 export default function LoginScreen({ navigation }) {
-  const [email, setEmail] = useState("");
-  const [pw, setPw] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const onLogin = async () => {
-    if (!email.trim()) return alert("이메일을 입력해 주세요.");
-    if (!/\S+@\S+\.\S+/.test(email))
-      return alert("이메일 형식이 올바르지 않습니다.");
-    if (pw.length < 4) return alert("비밀번호는 4자 이상 입력해 주세요.");
-
+  const onKakaoLogin = async () => {
     try {
-      setLoading(true);
-      setTimeout(() => {
-        navigation.replace("Home"); // 로그인 성공 가정
-        setLoading(false);
-      }, 500);
+    
+      navigation.replace('Home'); 
     } catch (e) {
-      setLoading(false);
-      alert("로그인에 실패했습니다.");
+      alert('카카오 로그인에 실패했습니다.');
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={s.container}>
-          <Text style={s.title}>로그인</Text>
-
-          <View style={s.form}>
-            <Text style={s.label}>이메일</Text>
-            <TextInput
-              style={s.input}
-              placeholder="example@domain.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              value={email}
-              onChangeText={setEmail}
-              returnKeyType="next"
-            />
-
-            <Text style={[s.label, { marginTop: 14 }]}>비밀번호</Text>
-            <TextInput
-              style={s.input}
-              placeholder="비밀번호"
-              secureTextEntry
-              value={pw}
-              onChangeText={setPw}
-              returnKeyType="done"
-              onSubmitEditing={onLogin}
-            />
-
-            <Pressable style={s.button} onPress={onLogin} disabled={loading}>
-              <Text style={s.buttonText}>
-                {loading ? "로그인 중..." : "로그인"}
-              </Text>
-            </Pressable>
-
-            {/* ↓↓↓ 추가한 링크 영역 ↓↓↓ */}
-            <View style={s.linksRow}>
-              <Pressable
-                onPress={() => navigation.navigate("Signup")}
-                hitSlop={8}
-              >
-                <Text style={s.linkText}>회원가입</Text>
-              </Pressable>
-              <Text style={s.dot}>·</Text>
-              <Pressable
-                onPress={() => navigation.navigate("ForgotPassword")}
-                hitSlop={8}
-              >
-                <Text style={s.linkText}>비밀번호 찾기</Text>
-              </Pressable>
-            </View>
-
-            <Text style={s.help}>
-              * 테스트용: 아무 이메일 형식 + 4자 이상 비밀번호 입력
-            </Text>
-          </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <View style={s.wrap}>
+        <Text style={s.brand}>
+          <Text style={{ fontWeight: '900', color: '#111827' }}>Bridge</Text>
+          <Text style={{ color: BLUE, fontWeight: '900' }}> · Us</Text>
+        </Text>
+        <Text style={s.subtitle}>
+          소중한 <Text style={{ color: BLUE, fontWeight: '800' }}>경험</Text>을 나눠주세요
+        </Text>
+        <View style={s.illustBox}>
+          <Image
+            source={require('../../assets/mascot.png')}
+            resizeMode="contain"
+            style={{ width: '100%', height: '100%' }}
+          />
         </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+        <Pressable style={s.kakaoBtn} onPress={onKakaoLogin}>
+          <Ionicons name="chatbubble-ellipses" size={18} color="#111" />
+          <Text style={s.kakaoTxt}>카카오 로그인</Text>
+        </Pressable>
+
+      </View>
+    </SafeAreaView>
   );
 }
 
-const BLUE = "#2563EB";
 const s = StyleSheet.create({
-  container: {
+  wrap: {
     flex: 1,
     paddingHorizontal: 24,
-    justifyContent: "center",
-    backgroundColor: "#fff",
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 20,
+    backgroundColor: '#fff',
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "800",
-    textAlign: "center",
-    marginBottom: 24,
-  },
-  form: { gap: 6 },
-  label: { fontSize: 13, color: "#6B7280" },
-  input: {
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-    backgroundColor: "#fff",
-  },
-  button: {
-    marginTop: 20,
-    backgroundColor: BLUE,
+  brand: { fontSize: 32 },
+  subtitle: { fontSize: 16, color: '#111', marginTop: -6 },
+  illustBox: { width: 220, height: 260, marginTop: 8, marginBottom: 12 },
+  kakaoBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: KAKAO_YELLOW,
     paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: "center",
+    paddingHorizontal: 22,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: BORDER,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
   },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
-  linksRow: {
-    marginTop: 14,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 10,
-  },
-  linkText: { color: BLUE, fontSize: 14, fontWeight: "600" },
-  dot: { color: "#9CA3AF", marginHorizontal: 4 },
-  help: { marginTop: 10, fontSize: 12, color: "#9CA3AF", textAlign: "center" },
+  kakaoTxt: { color: '#111', fontWeight: '800', fontSize: 16 },
 });

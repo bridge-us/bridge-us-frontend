@@ -153,12 +153,23 @@ export default function ChatScreen({ navigation }) {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* 상단 바 - MainScreen과 동일 */}
       <View style={s.topBar}>
-        <View style={s.brand}>
-          <Text style={s.brandBridge}>Bridge</Text>
-          <Text style={s.brandDot}> · </Text>
-          <Text style={s.brandUs}>Us</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Pressable
+            hitSlop={10}
+            onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Main'))}
+            style={{ marginRight: 12 }}
+            accessibilityLabel="뒤로가기"
+            accessibilityRole="button"
+          >
+            <Ionicons name="chevron-back" size={28} color="#111" />
+          </Pressable>
+          <View style={s.brand}>
+            <Text style={s.brandBridge}>Bridge</Text>
+            <Text style={s.brandDot}> · </Text>
+            <Text style={s.brandUs}>Us</Text>
+          </View>
         </View>
-        <Pressable hitSlop={10} onPress={() => alert("검색 준비중")}>
+        <Pressable hitSlop={10} onPress={() => alert('검색 준비중')}>
           <Ionicons name="search" size={28} color="#111" />
         </Pressable>
       </View>
